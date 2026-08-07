@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20; 
+//the '^' is used cuase 0.8.21, 0.8.22, 0.8.23 etc can also compile this program
+//why 0.8.x  bcux it has built-in overflow and underflow in it.
+
 //openZeppelin is an library for smart contracts.
 //why use npm ?
 //its a node package manager, its a tool used in javascript/typescript environments to manage external open-source libraries.
@@ -6,10 +11,10 @@
 //HARDHAT is a development environment where it automates complex tasks required to turn a raw solidity code into functional blockchain applications. 
 //hardhat runs local test network,compiles smart contracts, deploys on ethereum testnets or mainnets.
 
-//the '^' is used cuase 0.8.21, 0.8.22, 0.8.23 etc can also compile this program
-pragma solidity ^0.8.20; 
 
-//why 0.8.x  bcux it has built-in overflow and underflow in it.
+
+
+
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
@@ -34,7 +39,7 @@ contract Stablecoin is ERC20, AccessControl{
     
     //when we deploy the contract, i will pass the wallet address.
     //ERC20 constructor accepts token name, symbol. USDn Stablecoin - shows up in wallets like MetaMask, "USDn" shows up next to my balance like "ETH".
-    constructor (address admin) ERC20("USDn Stablecoin","USDb"){
+    constructor (address admin) ERC20("USDb Stablecoin","USDb"){
         _grantRole(DEFAULT_ADMIN_ROLE,admin);
     }
 
