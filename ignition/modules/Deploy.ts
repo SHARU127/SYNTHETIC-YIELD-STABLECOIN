@@ -1,28 +1,28 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-const USDbDeployment = buildModule("USDbDeployment", (m) => {
-  // 1. Get deployer account
+export default buildModule("USDbDeployment", (m) => {
   const deployer = m.getAccount(0);
 
-  // 2. Deploy Stablecoin
   const stablecoin = m.contract("Stablecoin", [deployer]);
+  const MockstETH = m.contract("MockstETH", []);
 
-  // 3. Deploy MockstETH
-  const mockstETH = m.contract("contracts/MockstETH.sol:MockstETH", []);
-
-  // 4. Deploy Vault
-  // Passing MockstETH and stablecoin futures directly as constructor arguments
   const vault = m.contract("Vault", [
-    mockstETH,
+    MockstETH,
     stablecoin,
-    "0x694AA1769357215DE4FAC081bf1f309aDC325306", // Chainlink Sepolia ETH/USD
+    "0x694AA1769357215DE4FAC081bf1f309aDC325306",
   ]);
 
-  // 5. Grant Vault MINTER_ROLE on the Stablecoin contract
+  const perpExchange = m.contract("PerpExchange", [
+    vault,
+    "0x694AA1769357215DE4FAC081bf1f309aDC325306",
+  ]);
+
+  // Wire PerpExchange into Vault — must happen after both are deployed
+  m.call(vault, "setPerpExchange", [perpExchange]);
+
+  // Grant Vault permission to mint/burn USDb
   const MINTER_ROLE = m.staticCall(stablecoin, "MINTER_ROLE");
   m.call(stablecoin, "grantRole", [MINTER_ROLE, vault]);
 
-  return { stablecoin, mockstETH, vault };
+  return { stablecoin, MockstETH, vault, perpExchange };
 });
-
-export default USDbDeployment;

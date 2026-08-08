@@ -18,9 +18,9 @@ async function main() {
 
   // 2. MockstETH (collateral token)
   const MockstETH = await ethers.getContractFactory("MockstETH");
-  const mockstETH = await MockstETH.deploy();
-  await mockstETH.waitForDeployment();
-  console.log("MockstETH:", await mockstETH.getAddress());
+  const MockstETH = await MockstETH.deploy();
+  await MockstETH.waitForDeployment();
+  console.log("MockstETH:", await MockstETH.getAddress());
 
   // 3. MockV3Aggregator (fake Chainlink ETH/USD feed) — 8 decimals, $3000 starting price
   const MockAggregator = await ethers.getContractFactory("MockV3Aggregator");
@@ -31,7 +31,7 @@ async function main() {
   // 4. Vault
   const Vault = await ethers.getContractFactory("Vault");
   const vault = await Vault.deploy(
-    await mockstETH.getAddress(),
+    await MockstETH.getAddress(),
     await stablecoin.getAddress(),
     await priceFeed.getAddress()
   );
@@ -58,11 +58,11 @@ async function main() {
 
   console.log("\n== Funding user with test collateral ==");
   const depositAmount = ethers.parseEther("10"); // 10 mstETH
-  await (await mockstETH.connect(user).faucet(depositAmount)).wait();
+  await (await MockstETH.connect(user).faucet(depositAmount)).wait();
   console.log(`User faucet'd ${ethers.formatEther(depositAmount)} mstETH`);
 
   console.log("\n== DEPOSIT ==");
-  await (await mockstETH.connect(user).approve(await vault.getAddress(), depositAmount)).wait();
+  await (await MockstETH.connect(user).approve(await vault.getAddress(), depositAmount)).wait();
   const depositTx = await vault.connect(user).deposit(depositAmount);
   const depositReceipt = await depositTx.wait();
   console.log("deposit() tx mined, status:", depositReceipt?.status === 1 ? "success" : "FAILED");
@@ -86,7 +86,7 @@ async function main() {
   console.log("redeem() tx mined, status:", redeemReceipt?.status === 1 ? "success" : "FAILED");
 
   const usdbBalanceAfterRedeem = await stablecoin.balanceOf(user.address);
-  const mstEthBalanceAfterRedeem = await mockstETH.balanceOf(user.address);
+  const mstEthBalanceAfterRedeem = await MockstETH.balanceOf(user.address);
   const vaultCollateralAfterRedeem = await vault.collateralBalance(user.address);
   const positionAfterRedeem = await perpExchange.position();
 
