@@ -1,15 +1,14 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-export default buildModule("USDnDeployment", (m) => {
+export default buildModule("USDnDeploymentSepolia", (m) => {
   const deployer = m.getAccount(0);
 
   const stablecoin = m.contract("Stablecoin", [deployer]);
-  const MockstETH = m.contract("MockstETH", []);
+  const mockStETH = m.contract("MockStETH", []);
 
-  // Local mock feed, starting at $3000
-  const priceFeed = m.contract("MockV3Aggregator", [3000n * 10n ** 8n]);
+  const priceFeed = "0x694AA1769357215DE4FAC081bf1f309aDC325306"; // real Chainlink
 
-  const vault = m.contract("Vault", [MockstETH, stablecoin, priceFeed]);
+  const vault = m.contract("Vault", [mockStETH, stablecoin, priceFeed]);
   const perpExchange = m.contract("PerpExchange", [vault, priceFeed]);
 
   m.call(vault, "setPerpExchange", [perpExchange]);
@@ -17,5 +16,5 @@ export default buildModule("USDnDeployment", (m) => {
   const MINTER_ROLE = m.staticCall(stablecoin, "MINTER_ROLE");
   m.call(stablecoin, "grantRole", [MINTER_ROLE, vault]);
 
-  return { stablecoin, MockstETH, vault, perpExchange, priceFeed };
+  return { stablecoin, mockStETH, vault, perpExchange };
 });
