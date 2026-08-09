@@ -15,7 +15,7 @@ Action item: update the Phase 3 slide to say Solidity + Foundry instead of Move 
 Our diagram shows the full production vision . What we're delivering is a working core of it — this is completely normal for an academic project, and reviewers expect scoped-down deliverables. Here's the honest breakdown:
 ✅ In scope — matches the diagram
 Diagram component	What we build
-USDn Token (ERC-20)	Stablecoin.sol— real ERC-20 with
+USDb Token (ERC-20)	Stablecoin.sol— real ERC-20 with
 mint/burn
 Minting Engine + Collateral Vault + Mint Ratio
 Controller	Vault.sol— one ERC-4626 contract
@@ -63,6 +63,6 @@ If asked why the full architecture isn't fully implemented:
 "We implemented the core protocol and hedging logic end-to-end on testnet — minting, collateral vaulting, simulated delta-neutral hedging, and redemption. Exchange integrations, automated keepers, and monitoring infrastructure are architected in our design ."
 
 4. The Three Contracts, One Line Each
-·	Stablecoin.sol — ERC-20 token (USDn), mint/burn restricted to Vault via access control
-·	Vault.sol — ERC-4626 vault: takes stETH collateral, mints USDn, tracks yield-bearing shares (the core of the whole project)
+·	Stablecoin.sol — ERC-20 token (USDb), mint/burn restricted to Vault via access control
+·	Vault.sol — ERC-4626 vault: takes stETH collateral, mints USDb, tracks yield-bearing shares (the core of the whole project)
 ·	PerpExchange.sol — mock contract simulating short positions + funding rate payments, so we can demonstrate the delta-neutral hedge without needing a real exchange
