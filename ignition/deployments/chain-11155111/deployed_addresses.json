@@ -1,0 +1,6 @@
+{
+  "USDnDeploymentSepolia#MockstETH": "0xA23148f000B46358BF2d79713df2fBAeFaABBD67",
+  "USDnDeploymentSepolia#Stablecoin": "0xbd35CF5372624bb39d7451db785e94B7df16E802",
+  "USDnDeploymentSepolia#Vault": "0xad02026CC788E02269ad3836bcD1C28D98f1B0CE",
+  "USDnDeploymentSepolia#PerpExchange": "0x7dD4683D43bFe3729D60BDCF70898004135b46B6"
+}

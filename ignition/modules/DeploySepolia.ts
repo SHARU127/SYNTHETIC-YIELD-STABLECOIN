@@ -4,17 +4,17 @@ export default buildModule("USDnDeploymentSepolia", (m) => {
   const deployer = m.getAccount(0);
 
   const stablecoin = m.contract("Stablecoin", [deployer]);
-  const mockStETH = m.contract("MockStETH", []);
+  
+  // 1. String "MockstETH" MUST match `contract MockstETH` in MockstETH.sol
+  const mockstETH = m.contract("MockstETH", []);
 
-  const priceFeed = "0x694AA1769357215DE4FAC081bf1f309aDC325306"; // real Chainlink
+  const priceFeed = "0x694AA1769357215DE4FAC081bf1f309aDC325306"; // Chainlink Sepolia
 
-  const vault = m.contract("Vault", [mockStETH, stablecoin, priceFeed]);
+  // 2. Pass `mockstETH` (matching variable name above) as 1st arg to Vault
+  const vault = m.contract("Vault", [mockstETH, stablecoin, priceFeed]);
   const perpExchange = m.contract("PerpExchange", [vault, priceFeed]);
 
   m.call(vault, "setPerpExchange", [perpExchange]);
 
-  const MINTER_ROLE = m.staticCall(stablecoin, "MINTER_ROLE");
-  m.call(stablecoin, "grantRole", [MINTER_ROLE, vault]);
-
-  return { stablecoin, mockStETH, vault, perpExchange };
+  return { stablecoin, mockstETH, vault, perpExchange };
 });

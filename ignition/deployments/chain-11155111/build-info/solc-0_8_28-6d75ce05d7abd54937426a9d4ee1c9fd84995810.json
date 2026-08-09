@@ -1,0 +1,54 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-6d75ce05d7abd54937426a9d4ee1c9fd84995810",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "compilerType": "solc",
+  "toolVersions": {
+    "hardhat": "3.12.0"
+  },
+  "userSourceNameMap": {
+    "contracts/PerpExchange.sol": "project/contracts/PerpExchange.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": [
+        "project/:@chainlink/contracts/=npm/@chainlink/contracts@1.5.0/"
+      ]
+    },
+    "sources": {
+      "npm/@chainlink/contracts@1.5.0/src/v0.8/shared/interfaces/AggregatorV3Interface.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\n// solhint-disable-next-line interface-starts-with-i\ninterface AggregatorV3Interface {\n  function decimals() external view returns (uint8);\n\n  function description() external view returns (string memory);\n\n  function version() external view returns (uint256);\n\n  function getRoundData(\n    uint80 _roundId\n  ) external view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound);\n\n  function latestRoundData()\n    external\n    view\n    returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound);\n}\n"
+      },
+      "project/contracts/PerpExchange.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol\";\n\n/**\n * @title PerExchange (simualted)\n * @notice Simulate a short position so Vault.sol can demonstrate\n *         delta-neutral hedging withhout integrating a real derivatives exchange\n * \n */\n\ncontract  PerpExchange {\n    address public immutable vault;\n    AggregatorV3Interface public immutable priceFeed;\n\n    struct Position {\n        uint256 size;   //usd value of the short position (8 decimal, matches chainlink)\n        uint256 entryPrice;  //ETH/USD price when this was opened \n    }\n\n    Position public position;\n\n    // simulated annual funding raate, in basis points(e.g. 800 = 8% APY)\n    uint256 public fundingRateBps = 800;\n    uint256 public latestFundingTimestamp;\n\n\n    modifier  onlyVault() {\n        require(msg.sender == vault, \"only vault can this\");\n        _;\n    }\n\n    constructor(address _vault, address _priceFeed) {\n        vault = _vault;\n        priceFeed = AggregatorV3Interface(_priceFeed);\n        latestFundingTimestamp =  block.timestamp; //global variable giving the current block's time\n    }\n\n    //open/increase the short position- called when a user deposits \n    function openPosition(uint256 usdAmount) external onlyVault {\n        uint256 currentPrice = getLatestPrice();\n        \n        //weighted - average price if a position already exists\n        if (position.size == 0 ) {\n            position.entryPrice = currentPrice;\n        } else {\n            position.entryPrice = \n            ((position.size * position.entryPrice) + (usdAmount * currentPrice))/(position.size + usdAmount);\n        }\n        position.size += usdAmount;\n\n\n    }\n\n    function getLatestPrice() public view returns (uint256) {\n    (, int256 price, , , ) = priceFeed.latestRoundData();\n    require(price > 0, \"Invalid price feed response\");\n    return uint256(price);\n    }\n\n    //close/reduce the position - called when a user redeems\n\n    function closePosition(uint usdAmount) external onlyVault returns (int256 pnl) {\n        require(position.size >= usdAmount, \"position to small\");\n\n        uint256 currentPrice = getLatestPrice();\n\n        //short position profits when price Falls below entry -this is the hedge math\n        pnl = (int256(position.entryPrice) - int256(currentPrice)) * int256(usdAmount) / int256(position.entryPrice);\n\n        position.size -= usdAmount;\n    }\n\n    function claimFunding() external onlyVault returns (uint256 fundingEarned) {\n        uint timeElapsed = block.timestamp - latestFundingTimestamp;\n\n        //// Simplified: (position size * rate * time elapsed) / (seconds in a year * 10000 bps)\n        fundingEarned = (position.size * fundingRateBps * timeElapsed) / (365 days * 10000);\n\n        latestFundingTimestamp = block.timestamp;\n    \n    }\n}"
+      }
+    }
+  }
+}
