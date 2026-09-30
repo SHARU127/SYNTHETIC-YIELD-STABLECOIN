@@ -21,3 +21,6 @@ if (!alreadyHasRole) {
 } else {
   console.log("Nothing to do — already granted.");
 }
+
+//grantRole isn't actually part of "deployment" in a strict sense, it's a normal contract interaction, exactly like deposit() or redeem(). Your existing contracts are sitting there, fully functional, just missing one permission flag. This script sends exactly that one transaction and nothing else.
+//

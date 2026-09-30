@@ -25,7 +25,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 
 /**
- * @title stablecoin (USDn)
+ * @title stablecoin (USDb)
  * @notice The ERC-20 token users hold. Minting and buring are burning are restricted  
  *         to whichever address holds MINTER_ROLE - that will our vault 
  *         contract, not any random wallet.
@@ -38,7 +38,7 @@ contract Stablecoin is ERC20, AccessControl{
     
     
     //when we deploy the contract, i will pass the wallet address.
-    //ERC20 constructor accepts token name, symbol. USDn Stablecoin - shows up in wallets like MetaMask, "USDn" shows up next to my balance like "ETH".
+    //ERC20 constructor accepts token name, symbol. USDb Stablecoin - shows up in wallets like MetaMask, "usdb" shows up next to my balance like "ETH".
     constructor (address admin) ERC20("USDb Stablecoin","USDb"){
         _grantRole(DEFAULT_ADMIN_ROLE,admin);
     }
